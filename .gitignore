@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Media
+*.mp4
+*.flv
+*.m3u8
+*.ts
+
+# IDE
+.vscode/
+.idea/
+.trae/
+
+# OS
+.DS_Store
+Thumbs.db
