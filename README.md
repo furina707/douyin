@@ -20,7 +20,11 @@ pip install -r requirements.txt
 ```
 
 ### 使用方法
-#### 1. 仅下载直播
+#### 1. Windows 一键启动 (推荐)
+直接双击运行 `start.bat`，按照提示输入直播间 ID 即可。
+
+#### 2. 命令行手动运行
+**仅下载直播：**
 ```bash
 python douyin_downloader.py [直播间ID]
 ```
