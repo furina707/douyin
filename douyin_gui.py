@@ -203,20 +203,49 @@ if __name__ == "__main__":
                 self.root.title("Douyin Monitor - 选择直播间")
                 self.root.geometry("400x500")
                 
-                tk.Label(root, text="请选择直播间:", font=("Arial", 12)).pack(pady=10)
+                tk.Label(root, text="请选择直播间 (支持数字键/回车):", font=("Arial", 12)).pack(pady=10)
                 
-                self.listbox = tk.Listbox(root, font=("Arial", 11))
+                self.listbox = tk.Listbox(root, font=("Consolas", 11), selectmode=tk.SINGLE)
                 self.listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
                 
                 self.rooms = self.load_rooms()
-                for name, rid in self.rooms:
-                    self.listbox.insert(tk.END, f"{name} ({rid})")
+                for i, (name, rid) in enumerate(self.rooms, 1):
+                    self.listbox.insert(tk.END, f"{i}. {name} ({rid})")
                 
                 tk.Label(root, text="或输入 ID/URL:", font=("Arial", 10)).pack(pady=5)
                 self.custom_entry = tk.Entry(root, font=("Arial", 10))
                 self.custom_entry.pack(fill=tk.X, padx=10)
                 
+                # Button
                 tk.Button(root, text="启动监控", command=self.on_start, font=("Arial", 12), bg="#0078d7", fg="white").pack(pady=20, ipadx=20)
+
+                # Bindings for "Terminal-like" operation
+                self.root.bind('<Return>', lambda e: self.on_start())
+                self.listbox.bind('<Double-Button-1>', lambda e: self.on_start())
+                
+                # Bind number keys 1-9
+                for i in range(1, 10):
+                    self.root.bind(str(i), lambda e, idx=i-1: self.select_by_index(idx))
+                
+                # Focus listbox by default
+                self.listbox.focus_set()
+                if self.listbox.size() > 0:
+                    self.listbox.selection_set(0)
+                    self.listbox.activate(0)
+
+            def select_by_index(self, index):
+                # Only trigger if custom entry is not focused
+                if self.root.focus_get() == self.custom_entry:
+                    return
+                    
+                if 0 <= index < self.listbox.size():
+                    self.listbox.selection_clear(0, tk.END)
+                    self.listbox.selection_set(index)
+                    self.listbox.activate(index)
+                    self.listbox.see(index)
+                    # Optional: Auto-start on number press? 
+                    # Maybe better to just select, so they hit Enter to confirm.
+                    # "Like terminal" usually means type number + enter.
 
             def load_rooms(self):
                 rooms = []
