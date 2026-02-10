@@ -136,10 +136,60 @@ def get_douyin_live_status(room_id):
             response = client.get("https://live.douyin.com/")
             ttwid = response.cookies.get("ttwid")
             if not ttwid:
+                # 尝试从响应头获取
+                for cookie in response.cookies:
+                    if cookie.name == "ttwid":
+                        ttwid = cookie.value
+                        break
+            
+            if not ttwid:
                 return False, None, None, "未知 (获取ttwid失败)"
             
-            # 2. 访问直播间页面
             headers["Cookie"] = f"ttwid={ttwid}"
+
+            # 2. 尝试使用 Webcast API 获取状态 (比 HTML 解析更稳定)
+            try:
+                api_url = "https://live.douyin.com/webcast/room/web/enter_room/"
+                params = {
+                    "web_rid": room_id,
+                    "aid": "6383",
+                    "device_platform": "web",
+                    "browser_language": "zh-CN",
+                    "browser_platform": "Win32",
+                    "browser_name": "Chrome",
+                    "browser_version": "120.0.0.0"
+                }
+                res = client.get(api_url, params=params)
+                if res.status_code == 200:
+                    data = res.json()
+                    room_data_list = data.get('data', {}).get('data', [])
+                    if room_data_list:
+                        room_data = room_data_list[0]
+                        status = room_data.get('status')
+                        title = room_data.get('title', '未知')
+                        
+                        # status: 2 直播中, 4 关播
+                        if status == 2:
+                            stream_url_data = room_data.get('stream_url', {}).get('flv_pull_url', {})
+                            if stream_url_data:
+                                # 优先获取高清链接
+                                target_url = stream_url_data.get('FULL_HD1') or \
+                                             stream_url_data.get('HD1') or \
+                                             stream_url_data.get('SD1') or \
+                                             stream_url_data.get('SD2')
+                                
+                                if not target_url:
+                                    target_url = list(stream_url_data.values())[0]
+                                    
+                                return True, target_url, ttwid, title
+                        elif status == 4:
+                            # 明确未开播
+                            return False, None, ttwid, title
+            except Exception as e:
+                # API 失败不报错，继续尝试 HTML 解析
+                pass
+
+            # 3. 访问直播间页面 (HTML 解析作为 Fallback)
             url = f"https://live.douyin.com/{room_id}"
             response = client.get(url)
             if response.status_code != 200:
