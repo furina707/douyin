@@ -19,3 +19,8 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# App specific
+Downloads/
+.lock_*
+concat_*.txt
