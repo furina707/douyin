@@ -7,6 +7,32 @@ import sys
 import time
 import glob
 
+# 强制设置标准输出为 UTF-8 (解决 Windows 下 GUI 管道编码问题)
+if sys.stdout and hasattr(sys.stdout, 'reconfigure'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except: pass
+
+def get_subprocess_kwargs(show_window=False):
+    """
+    获取 subprocess 的参数，用于隐藏 Windows 下的控制台窗口
+    如果 show_window 为 True，则不强制隐藏主窗口（适用于 ffplay 等 GUI 程序）
+    """
+    kwargs = {}
+    if os.name == 'nt':
+        startupinfo = subprocess.STARTUPINFO()
+        
+        # 仅当不需要显示窗口时，才设置 SW_HIDE
+        # 对于 ffplay，我们希望它显示视频窗口，所以不设置 SW_HIDE (也不设置 STARTF_USESHOWWINDOW)
+        # 但我们仍然使用 CREATE_NO_WINDOW 来隐藏它的控制台窗口
+        if not show_window:
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = subprocess.SW_HIDE
+            
+        kwargs['startupinfo'] = startupinfo
+        kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+    return kwargs
 
 def extract_room_id(input_str):
     """
@@ -40,7 +66,7 @@ def check_single_instance(room_id):
             if os.name == 'nt':
                 # Windows 使用 taskkill 及其子进程
                 subprocess.run(['taskkill', '/F', '/T', '/PID', str(pid)], 
-                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **get_subprocess_kwargs())
             else:
                 import signal
                 os.kill(pid, signal.SIGKILL)
@@ -255,11 +281,12 @@ def download_stream(stream_url, ttwid, output_name="live_record.mp4", preview=Fa
         try:
             # 启动 ffmpeg 进程
             # 注意：不应使用 time.sleep 等待，因为如果 pipe 缓冲区填满，ffmpeg 会阻塞，导致死锁
-            p_ffmpeg = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            p_ffmpeg = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, **get_subprocess_kwargs())
             
             # 立即启动 ffplay 进程，接收 ffmpeg 的 stdout 作为 stdin
             # 去掉 stderr=subprocess.DEVNULL 以便看到 ffplay 的报错
-            p_ffplay = subprocess.Popen(ffplay_command, stdin=p_ffmpeg.stdout)
+            # show_window=True 允许 ffplay 显示其视频窗口 (虽然 CREATE_NO_WINDOW 隐藏了控制台)
+            p_ffplay = subprocess.Popen(ffplay_command, stdin=p_ffmpeg.stdout, **get_subprocess_kwargs(show_window=True))
             
             # 关闭父进程中的 ffmpeg stdout 句柄，避免资源泄漏
             # 这样当 ffplay 退出时，ffmpeg 会收到 SIGPIPE (或写入错误) 而退出
@@ -290,7 +317,7 @@ def download_stream(stream_url, ttwid, output_name="live_record.mp4", preview=Fa
         ]
         print(f"[+] 开始下载: {output_name}")
         try:
-            process = subprocess.Popen(command)
+            process = subprocess.Popen(command, **get_subprocess_kwargs())
             process.wait()
         except KeyboardInterrupt:
             print("\n[!] 用户停止下载")
@@ -520,7 +547,7 @@ def merge_videos(room_id, include_merged=True, room_name=None):
     
     try:
         print(f"[*] 正在合并到: {output_path} ...")
-        process = subprocess.Popen(command)
+        process = subprocess.Popen(command, **get_subprocess_kwargs())
         process.wait()
         
         if process.returncode == 0:
@@ -847,9 +874,9 @@ if __name__ == "__main__":
         sys.exit(0)
         
     # 设置终端标题（仅限 Windows）
-    if os.name == 'nt':
-        title = f"DouyinDownloader - {room_name} ({room_id})" if room_name else f"DouyinDownloader - {room_id}"
-        os.system(f"title {title}")
+    # if os.name == 'nt':
+    #     title = f"DouyinDownloader - {room_name} ({room_id})" if room_name else f"DouyinDownloader - {room_id}"
+    #     os.system(f"title {title}")
         
     # 检查是否已有实例运行
     lock_handle, lock_path = check_single_instance(room_id)
