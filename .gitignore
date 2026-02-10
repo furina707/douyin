@@ -24,3 +24,6 @@ Thumbs.db
 Downloads/
 .lock_*
 concat_*.txt
+*.html
+*.log
+config_rooms.txt

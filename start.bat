@@ -87,12 +87,13 @@ if "!room_id!"=="" (
 )
 
 echo.
-echo [*] 正在启动智能监控模式...
-!PYTHON_CMD! douyin_downloader.py "!room_id!" --name "!room_name!" --auto-merge --preview --monitor
+echo [*] 正在启动智能监控模式 (GUI窗口)...
+if "!PYTHON_CMD!"=="py" (
+    start "" py -w douyin_gui.py "!room_id!" --name "!room_name!" --auto-merge --preview --monitor
+) else (
+    start "" pythonw douyin_gui.py "!room_id!" --name "!room_name!" --auto-merge --preview --monitor
+)
 
-echo.
-echo [*] 运行结束，按任意键退出...
-pause >nul
 exit
 
 :end

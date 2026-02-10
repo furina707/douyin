@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import scrolledtext
+from tkinter import scrolledtext, messagebox
 import subprocess
 import threading
 import sys
@@ -31,14 +31,34 @@ class DouyinGUI:
         self.video_frame = tk.Frame(self.root, bg="black")
         self.video_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         
-        self.placeholder_label = tk.Label(self.video_frame, text="等待直播预览启动...", fg="white", bg="black", font=("Arial", 14))
+        self.placeholder_label = tk.Label(self.video_frame, text="等待直播预览启动...", fg="white", bg="black", font=("微软雅黑", 14))
         self.placeholder_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
         
         # 2. Terminal/Log Area (Bottom)
-        self.log_frame = tk.Frame(self.root, height=200)
+        self.log_frame = tk.Frame(self.root, height=250)
         self.log_frame.pack(side=tk.BOTTOM, fill=tk.X)
         
-        self.log_text = scrolledtext.ScrolledText(self.log_frame, height=10, state='disabled', bg="#1e1e1e", fg="#d4d4d4", font=("Consolas", 10))
+        # --- Control Bar ---
+        self.ctrl_bar = tk.Frame(self.log_frame, bg="#2d2d2d")
+        self.ctrl_bar.pack(side=tk.TOP, fill=tk.X)
+        
+        tk.Label(self.ctrl_bar, text=" 实时日志", fg="#aaa", bg="#2d2d2d", font=("微软雅黑", 9)).pack(side=tk.LEFT)
+        
+        # Reselect Button
+        self.reselect_btn = tk.Button(
+            self.ctrl_bar, 
+            text=" 重新选择直播间 ", 
+            command=self.on_reselect, 
+            bg="#dc3545", 
+            fg="white", 
+            font=("微软雅黑", 9, "bold"),
+            relief=tk.FLAT,
+            borderwidth=0,
+            padx=10
+        )
+        self.reselect_btn.pack(side=tk.RIGHT, pady=2, padx=5)
+        
+        self.log_text = scrolledtext.ScrolledText(self.log_frame, height=12, state='disabled', bg="#1e1e1e", fg="#d4d4d4", font=("Consolas", 10))
         self.log_text.pack(fill=tk.BOTH, expand=True)
         
         # Configuration
@@ -103,6 +123,26 @@ class DouyinGUI:
 
         threading.Thread(target=run, daemon=True).start()
 
+    def stop_subprocess(self):
+        if self.process:
+            try:
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                startupinfo.wShowWindow = subprocess.SW_HIDE
+                CREATE_NO_WINDOW = 0x08000000
+                
+                subprocess.run(
+                    f"taskkill /F /T /PID {self.process.pid}", 
+                    shell=True, 
+                    stdout=subprocess.DEVNULL, 
+                    stderr=subprocess.DEVNULL,
+                    startupinfo=startupinfo,
+                    creationflags=CREATE_NO_WINDOW
+                )
+            except:
+                self.process.terminate()
+            self.process = None
+
     def start_window_embedder(self):
         def embed_loop():
             while True:
@@ -145,9 +185,6 @@ class DouyinGUI:
         # Modify style to remove borders and make it a child
         style = user32.GetWindowLongW(hwnd, GWL_STYLE)
         style = style & ~WS_CAPTION & ~WS_THICKFRAME
-        # Note: ffplay might need WS_POPUP removed and WS_CHILD added, 
-        # but sometimes ffplay acts weird if we force WS_CHILD too aggressively.
-        # Let's try just parenting it.
         
         user32.SetWindowLongW(hwnd, GWL_STYLE, style)
         user32.SetParent(hwnd, parent_hwnd)
@@ -165,124 +202,104 @@ class DouyinGUI:
             height = self.video_frame.winfo_height()
             user32.MoveWindow(self.embedded_hwnd, 0, 0, width, height, True)
 
+    def on_reselect(self):
+        if messagebox.askyesno("确认", "确定要停止当前监控并重新选择直播间吗？"):
+            self.stop_subprocess()
+            self.root.destroy()
+            show_room_selector()
+
     def on_close(self):
-        if self.process:
-            # Use taskkill to kill the process tree (including ffmpeg/ffplay)
-            try:
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                startupinfo.wShowWindow = subprocess.SW_HIDE
-                CREATE_NO_WINDOW = 0x08000000
-                
-                subprocess.run(
-                    f"taskkill /F /T /PID {self.process.pid}", 
-                    shell=True, 
-                    stdout=subprocess.DEVNULL, 
-                    stderr=subprocess.DEVNULL,
-                    startupinfo=startupinfo,
-                    creationflags=CREATE_NO_WINDOW
-                )
-            except:
-                # Fallback
-                self.process.terminate()
+        self.stop_subprocess()
         self.root.destroy()
         sys.exit(0)
 
+class RoomSelector:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Douyin Monitor - 选择直播间")
+        self.root.geometry("450x550")
+        
+        tk.Label(root, text="请选择直播间 (数字键/回车启动):", font=("微软雅黑", 12)).pack(pady=10)
+        
+        self.listbox = tk.Listbox(root, font=("Consolas", 11), selectmode=tk.SINGLE, bg="#f8f9fa", relief=tk.FLAT, borderwidth=1)
+        self.listbox.pack(fill=tk.BOTH, expand=True, padx=15, pady=5)
+        
+        self.rooms = self.load_rooms()
+        for i, (name, rid) in enumerate(self.rooms, 1):
+            self.listbox.insert(tk.END, f"{i}. {name} ({rid})")
+        
+        tk.Label(root, text="或手动输入 ID/URL:", font=("微软雅黑", 10)).pack(pady=5)
+        self.custom_entry = tk.Entry(root, font=("Arial", 11))
+        self.custom_entry.pack(fill=tk.X, padx=15, pady=5)
+        
+        # Button
+        tk.Button(root, text=" 启动监控模式 ", command=self.on_start, font=("微软雅黑", 12, "bold"), bg="#0078d7", fg="white", relief=tk.FLAT, borderwidth=0, pady=5).pack(pady=20, ipadx=30)
+
+        # Bindings
+        self.root.bind('<Return>', lambda e: self.on_start())
+        self.listbox.bind('<Double-Button-1>', lambda e: self.on_start())
+        
+        for i in range(1, 10):
+            self.root.bind(str(i), lambda e, idx=i-1: self.select_by_index(idx))
+        
+        self.listbox.focus_set()
+        if self.listbox.size() > 0:
+            self.listbox.selection_set(0)
+            self.listbox.activate(0)
+
+    def select_by_index(self, index):
+        if self.root.focus_get() == self.custom_entry:
+            return
+        if 0 <= index < self.listbox.size():
+            self.listbox.selection_clear(0, tk.END)
+            self.listbox.selection_set(index)
+            self.listbox.activate(index)
+            self.listbox.see(index)
+
+    def load_rooms(self):
+        rooms = []
+        if os.path.exists("config_rooms.txt"):
+            try:
+                with open("config_rooms.txt", "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith("#"):
+                            parts = line.split(",")
+                            if len(parts) >= 2:
+                                rooms.append((parts[0].strip(), parts[1].strip()))
+            except: pass
+        return rooms
+
+    def on_start(self):
+        selection = self.listbox.curselection()
+        if selection:
+            name, rid = self.rooms[selection[0]]
+            self.launch(rid, name)
+        else:
+            custom = self.custom_entry.get().strip()
+            if custom:
+                self.launch(custom, "手动输入")
+            else:
+                messagebox.showwarning("提示", "请选择或输入直播间")
+
+    def launch(self, rid, name):
+        self.root.destroy()
+        root = tk.Tk()
+        args = [rid, "--name", name, "--auto-merge", "--preview", "--monitor"]
+        app = DouyinGUI(root, args)
+        root.mainloop()
+
+def show_room_selector():
+    root = tk.Tk()
+    selector = RoomSelector(root)
+    root.mainloop()
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        # If args provided, run directly (Legacy mode / Called from bat)
+        # Legacy/Direct call
         args = sys.argv[1:]
         root = tk.Tk()
         app = DouyinGUI(root, args)
         root.mainloop()
     else:
-        # If no args, show Room Selector first
-        class RoomSelector:
-            def __init__(self, root):
-                self.root = root
-                self.root.title("Douyin Monitor - 选择直播间")
-                self.root.geometry("400x500")
-                
-                tk.Label(root, text="请选择直播间 (支持数字键/回车):", font=("Arial", 12)).pack(pady=10)
-                
-                self.listbox = tk.Listbox(root, font=("Consolas", 11), selectmode=tk.SINGLE)
-                self.listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-                
-                self.rooms = self.load_rooms()
-                for i, (name, rid) in enumerate(self.rooms, 1):
-                    self.listbox.insert(tk.END, f"{i}. {name} ({rid})")
-                
-                tk.Label(root, text="或输入 ID/URL:", font=("Arial", 10)).pack(pady=5)
-                self.custom_entry = tk.Entry(root, font=("Arial", 10))
-                self.custom_entry.pack(fill=tk.X, padx=10)
-                
-                # Button
-                tk.Button(root, text="启动监控", command=self.on_start, font=("Arial", 12), bg="#0078d7", fg="white").pack(pady=20, ipadx=20)
-
-                # Bindings for "Terminal-like" operation
-                self.root.bind('<Return>', lambda e: self.on_start())
-                self.listbox.bind('<Double-Button-1>', lambda e: self.on_start())
-                
-                # Bind number keys 1-9
-                for i in range(1, 10):
-                    self.root.bind(str(i), lambda e, idx=i-1: self.select_by_index(idx))
-                
-                # Focus listbox by default
-                self.listbox.focus_set()
-                if self.listbox.size() > 0:
-                    self.listbox.selection_set(0)
-                    self.listbox.activate(0)
-
-            def select_by_index(self, index):
-                # Only trigger if custom entry is not focused
-                if self.root.focus_get() == self.custom_entry:
-                    return
-                    
-                if 0 <= index < self.listbox.size():
-                    self.listbox.selection_clear(0, tk.END)
-                    self.listbox.selection_set(index)
-                    self.listbox.activate(index)
-                    self.listbox.see(index)
-                    # Optional: Auto-start on number press? 
-                    # Maybe better to just select, so they hit Enter to confirm.
-                    # "Like terminal" usually means type number + enter.
-
-            def load_rooms(self):
-                rooms = []
-                if os.path.exists("config_rooms.txt"):
-                    with open("config_rooms.txt", "r", encoding="utf-8") as f:
-                        for line in f:
-                            line = line.strip()
-                            if line and not line.startswith("#"):
-                                parts = line.split(",")
-                                if len(parts) >= 2:
-                                    rooms.append((parts[0].strip(), parts[1].strip()))
-                return rooms
-
-            def on_start(self):
-                selection = self.listbox.curselection()
-                if selection:
-                    name, rid = self.rooms[selection[0]]
-                    self.launch(rid, name)
-                else:
-                    custom = self.custom_entry.get().strip()
-                    if custom:
-                        self.launch(custom, "Unknown")
-                    else:
-                        tk.messagebox.showwarning("提示", "请选择或输入直播间")
-
-            def launch(self, rid, name):
-                self.root.destroy()
-                
-                # Launch main GUI
-                root = tk.Tk()
-                # Construct args for DouyinGUI
-                # Corresponds to: douyin_downloader.py "!room_id!" --name "!room_name!" --auto-merge --preview --monitor
-                args = [rid, "--name", name, "--auto-merge", "--preview", "--monitor"]
-                app = DouyinGUI(root, args)
-                root.mainloop()
-
-        root = tk.Tk()
-        import tkinter.messagebox
-        selector = RoomSelector(root)
-        root.mainloop()
+        show_room_selector()

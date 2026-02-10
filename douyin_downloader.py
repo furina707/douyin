@@ -120,104 +120,107 @@ def check_single_instance(room_id):
         except Exception:
             return None, None
 
+def get_ttwid_from_browser():
+    """
+    通过模拟浏览器访问流程获取 ttwid
+    """
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    }
+    try:
+        # 使用 http1=True 避开某些 HTTP/2 指纹检测
+        with httpx.Client(headers=headers, follow_redirects=True, timeout=10, http2=False) as client:
+            # 1. 访问首页
+            client.get("https://www.douyin.com/")
+            # 2. 访问直播根目录 (很多 Cookie 是在这里设置的)
+            client.get("https://live.douyin.com/")
+            return client.cookies.get("ttwid")
+    except:
+        return None
+
 def get_douyin_live_status(room_id):
     """
-    获取抖音直播间状态及流地址
-    返回: (is_live, stream_url, ttwid, room_title)
+    获取抖音直播间状态及流地址 (2026 稳定修复版)
     """
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Referer": "https://live.douyin.com/",
+        "Accept": "application/json, text/plain, */*",
     }
     
+    room_title = "未知"
+    ttwid = get_ttwid_from_browser()
+    
     try:
-        with httpx.Client(headers=headers, follow_redirects=True, timeout=10) as client:
-            # 1. 获取 ttwid 
-            response = client.get("https://live.douyin.com/")
-            ttwid = response.cookies.get("ttwid")
-            if not ttwid:
-                # 尝试从响应头获取
-                for cookie in response.cookies:
-                    if cookie.name == "ttwid":
-                        ttwid = cookie.value
-                        break
-            
-            if not ttwid:
-                return False, None, None, "未知 (获取ttwid失败)"
-            
-            headers["Cookie"] = f"ttwid={ttwid}"
+        # 使用 http2=False 增加兼容性
+        with httpx.Client(headers=headers, follow_redirects=True, timeout=15, http2=False) as client:
+            if ttwid:
+                client.cookies.set("ttwid", ttwid)
 
-            # 2. 尝试使用 Webcast API 获取状态 (比 HTML 解析更稳定)
+            # 1. 使用 Webcast API (携带丰富参数以绕过空返回)
             try:
-                api_url = "https://live.douyin.com/webcast/room/web/enter_room/"
+                api_url = "https://live.douyin.com/webcast/room/web/enter/"
                 params = {
                     "web_rid": room_id,
                     "aid": "6383",
                     "device_platform": "web",
+                    "browser_name": "chrome",
+                    "cookie_enabled": "true",
+                    "screen_width": "1920",
+                    "screen_height": "1080",
                     "browser_language": "zh-CN",
                     "browser_platform": "Win32",
-                    "browser_name": "Chrome",
                     "browser_version": "120.0.0.0"
                 }
                 res = client.get(api_url, params=params)
-                if res.status_code == 200:
+                if res.status_code == 200 and len(res.content) > 0:
                     data = res.json()
-                    room_data_list = data.get('data', {}).get('data', [])
-                    if room_data_list:
-                        room_data = room_data_list[0]
-                        status = room_data.get('status')
-                        title = room_data.get('title', '未知')
-                        
-                        # status: 2 直播中, 4 关播
-                        if status == 2:
-                            stream_url_data = room_data.get('stream_url', {}).get('flv_pull_url', {})
-                            if stream_url_data:
-                                # 优先获取高清链接
-                                target_url = stream_url_data.get('FULL_HD1') or \
-                                             stream_url_data.get('HD1') or \
-                                             stream_url_data.get('SD1') or \
-                                             stream_url_data.get('SD2')
-                                
-                                if not target_url:
-                                    target_url = list(stream_url_data.values())[0]
-                                    
-                                return True, target_url, ttwid, title
-                        elif status == 4:
-                            # 明确未开播
-                            return False, None, ttwid, title
-            except Exception as e:
-                # API 失败不报错，继续尝试 HTML 解析
+                    if data.get("status_code") == 0:
+                        room_data_list = data.get("data", {}).get("data", [])
+                        if room_data_list:
+                             room_info = room_data_list[0]
+                             status = room_info.get("status")
+                             room_title = room_info.get("title", "未知")
+                             
+                             if status == 2:
+                                 stream_url_data = room_info.get("stream_url", {})
+                                 flv_url_list = stream_url_data.get("flv_pull_url", {})
+                                 
+                                 # 优先级排序：原画 > 蓝光 > 高清 > 标清
+                                 target_url = (flv_url_list.get("FULL_HD1") or 
+                                              flv_url_list.get("HD1") or 
+                                              flv_url_list.get("SD1") or 
+                                              flv_url_list.get("SD2"))
+                                 
+                                 if target_url:
+                                     print(f"[+] 成功通过 API 获取直播: {room_title}")
+                                     return True, target_url, ttwid, room_title
+                             elif status == 4:
+                                 return False, None, ttwid, room_title
+            except Exception:
                 pass
 
-            # 3. 访问直播间页面 (HTML 解析作为 Fallback)
-            url = f"https://live.douyin.com/{room_id}"
-            response = client.get(url)
-            if response.status_code != 200:
-                return False, None, ttwid, f"未知 (HTTP {response.status_code})"
-            
-            content = response.text
-            
-            # 检查是否在直播
-            # 抖音网页版通常在 RENDER_DATA 中包含状态
-            # status 为 2 表示正在直播，4 表示未开播
-            is_live = False
-            room_title = "未知"
-            
-            # 尝试解析 RENDER_DATA
-            render_data_match = re.search(r'<script id="RENDER_DATA" type="application/json">(.*?)</script>', content)
-            if render_data_match:
-                try:
+
+            # 3. 备用：HTML 解析 (处理 API 被封禁的情况)
+            try:
+                resp_html = client.get(f"https://live.douyin.com/{room_id}")
+                content = resp_html.text
+                
+                # 检查是否是验证码页面 (仅记录，不报错)
+                # if "captcha" in content or "verify" in content:
+                #      pass
+
+                # 尝试解析 RENDER_DATA
+                render_data_match = re.search(r'<script id="RENDER_DATA" type="application/json">(.*?)</script>', content)
+                if render_data_match:
                     import urllib.parse
                     data_str = urllib.parse.unquote(render_data_match.group(1))
                     data = json.loads(data_str)
                     
-                    # 抖音 RENDER_DATA 结构可能发生变化，尝试多种路径
+                    # 递归寻找 roomInfo
                     def find_room_data(obj):
                         if not isinstance(obj, dict): return None
-                        # 路径1: common -> roomInfo
                         if 'roomInfo' in obj: return obj['roomInfo']
-                        # 路径2: app -> initialState -> roomStore -> roomInfo
-                        # 尝试递归搜索
                         for k, v in obj.items():
                             if k == 'roomInfo': return v
                             if isinstance(v, dict):
@@ -229,58 +232,45 @@ def get_douyin_live_status(room_id):
                     if room_info:
                         room_data = room_info.get('room', {})
                         room_status = room_data.get('status')
-                        room_title = room_data.get('title', '未知')
-                        is_live = (room_status == 2)
-                except Exception as e:
-                    pass # 忽略解析错误，继续尝试正则
+                        room_title = room_data.get('title', room_title)
+                        if room_status == 2:
+                            # 提取流地址
+                            stream_url_data = room_data.get('stream_url', {})
+                            flv_url_list = stream_url_data.get('flv_pull_url', {})
+                            target_url = flv_url_list.get('FULL_HD1') or flv_url_list.get('HD1') or flv_url_list.get('SD1')
+                            if target_url:
+                                print(f"[+] HTML 检测到直播中: {room_title}")
+                                return True, target_url, ttwid, room_title
+                        elif room_status == 4:
+                            return False, None, ttwid, room_title
+            except Exception:
+                pass
 
-            # 如果 RENDER_DATA 解析失败，退回到正则搜索流地址
-            # 3. 提取流地址
-            flv_matches = re.findall(r'https?://[^\s"\\\]]+?\.flv[^\s"\\\]]*', content)
-            escaped_flv_matches = re.findall(r'https?:\\\/\\\/[^\s"\\\]]+?\.flv[^\s"\\\]]*', content)
-            
-            all_urls = list(set(flv_matches + [u.replace('\\/', '/') for u in escaped_flv_matches]))
-            
-            if not all_urls:
-                # 尝试匹配 m3u8 (HLS)
-                m3u8_matches = re.findall(r'https?://[^\s"\\\]]+?\.m3u8[^\s"\\\]]*', content)
-                escaped_m3u8_matches = re.findall(r'https?:\\\/\\\/[^\s"\\\]]+?\.m3u8[^\s"\\\]]*', content)
-                all_urls = list(set(m3u8_matches + [u.replace('\\/', '/') for u in escaped_m3u8_matches]))
+            # 4. 暴力搜索流地址 (最后的倔强)
+            if 'content' in locals():
+                flv_matches = re.findall(r'https?://[^\s"\\\]]+?\.flv[^\s"\\\]]*', content)
+                if flv_matches:
+                     url = flv_matches[0].replace('\\/', '/').replace("&amp;", "&").split('\\"')[0]
+                     return True, url, ttwid, room_title
 
-            cleaned_urls = []
-            for u in all_urls:
-                u = u.replace("&amp;", "&").split('&quot;')[0].split('\\"')[0]
-                cleaned_urls.append(u)
-            
-            # 如果解析到了标题但没识别出直播状态，根据是否找到链接补充判断
-            if cleaned_urls and not is_live:
-                is_live = True
-            
-            # 优先级排序
-            def get_priority(url):
-                url_lower = url.lower()
-                if "_or4" in url_lower or "origin" in url_lower: return 0
-                if "uhd" in url_lower: return 1
-                if "hd" in url_lower: return 2
-                if "sd" in url_lower: return 3
-                return 4
+            # 5. 移动端接口尝试
+            try:
+                mobile_url = "https://webcast.amemv.com/webcast/room/reflow/info/"
+                res_mobile = client.get(mobile_url, params={"room_id": room_id, "app_id": "1128"})
+                if res_mobile.status_code == 200:
+                    m_data = res_mobile.json()
+                    m_room = m_data.get("data", {}).get("room", {})
+                    if m_room and m_room.get("status") == 2:
+                        target_url = m_room.get("stream_url", {}).get("flv_pull_url", {}).get("FULL_HD1")
+                        if target_url:
+                             return True, target_url, ttwid, m_room.get("title", room_title)
+            except Exception:
+                pass
 
-            # 如果找到了流地址，基本可以确定是在直播
-            if cleaned_urls:
-                is_live = True
-                cleaned_urls.sort(key=get_priority)
-                # 优先选择 auth_key
-                auth_urls = [u for u in cleaned_urls if "auth_key" in u]
-                if auth_urls:
-                    auth_urls.sort(key=get_priority)
-                    return True, auth_urls[0], ttwid, room_title
-                return True, cleaned_urls[0], ttwid, room_title
-            
-            return is_live, None, ttwid, room_title
-            
+            return False, None, ttwid, room_title
     except Exception as e:
         print(f"[-] 请求出错: {e}")
-        return False, None, None, f"出错: {str(e)}"
+        return False, None, ttwid, f"出错: {str(e)}"
 
 def download_stream(stream_url, ttwid, output_name="live_record.mp4", preview=False):
     """
