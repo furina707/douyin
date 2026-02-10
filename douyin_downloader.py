@@ -431,9 +431,9 @@ def monitor_live(room_id, room_name=None, preview=False, interval=30, auto_merge
                     is_currently_live = False
                     time.sleep(interval)
                 
-                # 使用 sys.stdout.write 实现单行刷新显示
-                sys.stdout.write(f"\r[*] 等待开播中... (最后检查: {time.strftime('%H:%M:%S')}, 房间: {display_name}, 状态: {room_title})")
-                sys.stdout.flush()
+                # 在 GUI 模式下，\r 会导致缓冲区等待换行符，从而导致日志不显示
+                # 因此我们直接使用 print 输出，虽然会刷屏，但能保证用户看到状态
+                print(f"[*] 等待开播中... (最后检查: {time.strftime('%H:%M:%S')}, 状态: {room_title})")
                 
         except Exception as e:
             print(f"\n[-] 监控循环出错: {e}")
