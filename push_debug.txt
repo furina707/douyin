@@ -1,0 +1,24 @@
+==================================================
+    抖音推流凭证获取工具 (.NET 版 - 自动模式)     
+==================================================
+
+[DEBUG] AppData 路径: C:\Users\cytFu\AppData\Local
+[DEBUG] Local State: C:\Users\cytFu\AppData\Local\Microsoft\Edge\User Data\Local State (存在: True)
+[DEBUG] Cookies DB: C:\Users\cytFu\AppData\Local\Microsoft\Edge\User Data\Default\Network\Cookies (存在: True)
+[*] 正在从本地 Edge 浏览器提取 Cookie...
+[DEBUG] Master Key 长度: 32 bytes
+[DEBUG] Cookie DB 已复制到: C:\Users\cytFu\AppData\Local\Temp\tmpyfttuo.tmp
+[DEBUG] 解密失败 cookie: __live_version__, 前缀: v20, 长度: 79
+[DEBUG] 解密失败 cookie: fpk1, 前缀: v20, 长度: 151
+[DEBUG] 解密失败 cookie: fpk2, 前缀: v20, 长度: 95
+[DEBUG] 查询到 48 行, 成功解密 0, 失败 48
+[!] 无法从 Edge 浏览器中提取到任何 douyin.com 的 Cookie。
+[提示] 请确保：
+  1. 您已在 Edge 浏览器中登录了 live.douyin.com
+  2. Edge 浏览器已完全关闭（否则数据库会被锁定）
+
+按任意键退出...
+Unhandled exception. System.InvalidOperationException: Cannot read keys when either application does not have a console or when console input has been redirected. Try Console.Read.
+   at System.ConsolePal.ReadKey(Boolean intercept)
+   at PushFetcher.Program.Main(String[] args)
+   at PushFetcher.Program.<Main>(String[] args)

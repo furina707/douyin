@@ -1,0 +1,2 @@
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\bin\Release\net9.0\win-x64\publish\PushFetcher.pdb
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\bin\Release\net9.0\win-x64\publish\PushFetcher.exe
