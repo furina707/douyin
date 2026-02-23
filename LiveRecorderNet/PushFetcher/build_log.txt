@@ -1,0 +1,35 @@
+  姝ｅ湪纭畾瑕佽繕鍘熺殑椤圭洰鈥?
+  宸茶繕鍘?C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj (鐢ㄦ椂 259 姣)銆?
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(97,46): warning CS8600: 灏?null 鏂囨湰鎴栧彲鑳界殑 null 鍊艰浆鎹负涓嶅彲涓?null 绫诲瀷銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(132,95): warning CS8600: 灏?null 鏂囨湰鎴栧彲鑳界殑 null 鍊艰浆鎹负涓嶅彲涓?null 绫诲瀷銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(133,90): warning CS8600: 灏?null 鏂囨湰鎴栧彲鑳界殑 null 鍊艰浆鎹负涓嶅彲涓?null 绫诲瀷銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(162,37): warning CS8600: 灏?null 鏂囨湰鎴栧彲鑳界殑 null 鍊艰浆鎹负涓嶅彲涓?null 绫诲瀷銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(296,36): error CS0103: 褰撳墠涓婁笅鏂囦腑涓嶅瓨鍦ㄥ悕绉扳€淧rotectedData鈥?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(296,80): error CS0103: 褰撳墠涓婁笅鏂囦腑涓嶅瓨鍦ㄥ悕绉扳€淒ataProtectionScope鈥?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(288,42): warning CS8600: 灏?null 鏂囨湰鎴栧彲鑳界殑 null 鍊艰浆鎹负涓嶅彲涓?null 绫诲瀷銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(289,74): warning CS8604: 鈥渂yte[] Convert.FromBase64String(string s)鈥濅腑鐨勫舰鍙傗€渟鈥濆彲鑳戒紶鍏?null 寮曠敤瀹炲弬銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(302,24): warning CS8603: 鍙兘杩斿洖 null 寮曠敤銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(314,55): warning CS8603: 鍙兘杩斿洖 null 寮曠敤銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(317,64): warning CS8603: 鍙兘杩斿洖 null 寮曠敤銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(326,51): warning CS8603: 鍙兘杩斿洖 null 寮曠敤銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(342,24): warning CS8603: 鍙兘杩斿洖 null 寮曠敤銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+
+鐢熸垚澶辫触銆?
+
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(97,46): warning CS8600: 灏?null 鏂囨湰鎴栧彲鑳界殑 null 鍊艰浆鎹负涓嶅彲涓?null 绫诲瀷銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(132,95): warning CS8600: 灏?null 鏂囨湰鎴栧彲鑳界殑 null 鍊艰浆鎹负涓嶅彲涓?null 绫诲瀷銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(133,90): warning CS8600: 灏?null 鏂囨湰鎴栧彲鑳界殑 null 鍊艰浆鎹负涓嶅彲涓?null 绫诲瀷銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(162,37): warning CS8600: 灏?null 鏂囨湰鎴栧彲鑳界殑 null 鍊艰浆鎹负涓嶅彲涓?null 绫诲瀷銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(288,42): warning CS8600: 灏?null 鏂囨湰鎴栧彲鑳界殑 null 鍊艰浆鎹负涓嶅彲涓?null 绫诲瀷銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(289,74): warning CS8604: 鈥渂yte[] Convert.FromBase64String(string s)鈥濅腑鐨勫舰鍙傗€渟鈥濆彲鑳戒紶鍏?null 寮曠敤瀹炲弬銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(302,24): warning CS8603: 鍙兘杩斿洖 null 寮曠敤銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(314,55): warning CS8603: 鍙兘杩斿洖 null 寮曠敤銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(317,64): warning CS8603: 鍙兘杩斿洖 null 寮曠敤銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(326,51): warning CS8603: 鍙兘杩斿洖 null 寮曠敤銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(342,24): warning CS8603: 鍙兘杩斿洖 null 寮曠敤銆?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(296,36): error CS0103: 褰撳墠涓婁笅鏂囦腑涓嶅瓨鍦ㄥ悕绉扳€淧rotectedData鈥?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\Program.cs(296,80): error CS0103: 褰撳墠涓婁笅鏂囦腑涓嶅瓨鍦ㄥ悕绉扳€淒ataProtectionScope鈥?[C:\Users\cytFu\Desktop\douyin\LiveRecorderNet\PushFetcher\PushFetcher.csproj]
+    11 涓鍛?
+    2 涓敊璇?
+
+宸茬敤鏃堕棿 00:00:01.33

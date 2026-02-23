@@ -1,0 +1,61 @@
+﻿<Window x:Class="LiveRecorderApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        ui:WindowHelper.UseModernWindowStyle="True"
+        mc:Ignorable="d"
+        ui:ThemeManager.RequestedTheme="Dark"
+        Title="抖音/B站 自动录制器 (.NET 9)" Height="600" Width="900" 
+        Background="{DynamicResource SystemControlPageBackgroundAltHighBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="直播监控仪表盘" FontSize="28" FontWeight="Bold"/>
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,20">
+                <TextBox x:Name="RoomIdInput" Width="300" ui:ControlHelper.PlaceholderText="输入抖音号或B站房间号" Margin="0,0,10,0"/>
+                <Button Content="添加监控" Click="AddMonitor_Click" Style="{StaticResource AccentButtonStyle}" Margin="0,0,10,0"/>
+                <Button Content="一键开启" Click="StartAll_Click"/>
+            </StackPanel>
+        </StackPanel>
+
+        <ListView x:Name="MonitorList" Grid.Row="1" BorderThickness="0" Background="Transparent">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="平台" DisplayMemberBinding="{Binding Platform}" Width="60"/>
+                    <GridViewColumn Header="主播/房间号" DisplayMemberBinding="{Binding DisplayName}" Width="200"/>
+                    <GridViewColumn Header="状态" Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Status}" Foreground="{Binding StatusColor}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="标题" DisplayMemberBinding="{Binding Title}" Width="300"/>
+                    <GridViewColumn Header="操作">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="预览" Click="Preview_Click" Margin="0,0,5,0"/>
+                                    <Button Content="停止" Click="Stop_Click"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <StatusBar Grid.Row="2" Background="Transparent" Margin="0,10,0,0">
+            <TextBlock x:Name="StatusText" Text="就绪"/>
+            <Separator/>
+            <TextBlock x:Name="LogText" Text="等待任务开始..."/>
+        </StatusBar>
+    </Grid>
+</Window>

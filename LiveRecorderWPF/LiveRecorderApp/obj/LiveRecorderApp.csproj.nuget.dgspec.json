@@ -1,0 +1,84 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\cytFu\\Desktop\\douyin\\LiveRecorderWPF\\LiveRecorderApp\\LiveRecorderApp.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\cytFu\\Desktop\\douyin\\LiveRecorderWPF\\LiveRecorderApp\\LiveRecorderApp.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\cytFu\\Desktop\\douyin\\LiveRecorderWPF\\LiveRecorderApp\\LiveRecorderApp.csproj",
+        "projectName": "LiveRecorderApp",
+        "projectPath": "C:\\Users\\cytFu\\Desktop\\douyin\\LiveRecorderWPF\\LiveRecorderApp\\LiveRecorderApp.csproj",
+        "packagesPath": "C:\\Users\\cytFu\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\cytFu\\Desktop\\douyin\\LiveRecorderWPF\\LiveRecorderApp\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\cytFu\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0-windows"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0-windows7.0": {
+            "targetAlias": "net9.0-windows",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0-windows7.0": {
+          "targetAlias": "net9.0-windows",
+          "dependencies": {
+            "ModernWpfUI": {
+              "target": "Package",
+              "version": "[0.9.6, )"
+            },
+            "System.Management": {
+              "target": "Package",
+              "version": "[10.0.3, )"
+            },
+            "System.Text.Json": {
+              "target": "Package",
+              "version": "[10.0.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.WindowsDesktop.App.WPF": {
+              "privateAssets": "none"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.311/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

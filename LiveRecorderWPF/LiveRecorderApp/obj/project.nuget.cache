@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "6KnStM46kDA=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\cytFu\\Desktop\\douyin\\LiveRecorderWPF\\LiveRecorderApp\\LiveRecorderApp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\cytFu\\.nuget\\packages\\modernwpfui\\0.9.6\\modernwpfui.0.9.6.nupkg.sha512",
+    "C:\\Users\\cytFu\\.nuget\\packages\\system.codedom\\10.0.3\\system.codedom.10.0.3.nupkg.sha512",
+    "C:\\Users\\cytFu\\.nuget\\packages\\system.io.pipelines\\10.0.3\\system.io.pipelines.10.0.3.nupkg.sha512",
+    "C:\\Users\\cytFu\\.nuget\\packages\\system.management\\10.0.3\\system.management.10.0.3.nupkg.sha512",
+    "C:\\Users\\cytFu\\.nuget\\packages\\system.text.encodings.web\\10.0.3\\system.text.encodings.web.10.0.3.nupkg.sha512",
+    "C:\\Users\\cytFu\\.nuget\\packages\\system.text.json\\10.0.3\\system.text.json.10.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
